@@ -1,0 +1,160 @@
+﻿@page "/"
+@using listasEnlazadas.Models
+@using listasEnlazadas.Services
+
+<PageTitle>Lista Enlazada Simple</PageTitle>
+
+<div class="container mt-4">
+    <h1 class="text-center">Lista Enlazada Simple</h1>
+
+    <div class="row">
+        <!-- Panel de control (Izquierda) -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h4>Operaciones</h4>
+                <input type="text" class="form-control mb-2" placeholder="Ingrese un valor" @bind="Valor" />
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success w-50" @onclick="AgregarInicio">Agregar al Inicio</button>
+                    <button class="btn btn-primary w-50" @onclick="AgregarFinal">Agregar al Final</button>
+                </div>
+
+                <input type="text" class="form-control mt-3 mb-2" placeholder="Dato X" @bind="ValorX" />
+                <input type="text" class="form-control mb-2" placeholder="Nuevo Valor" @bind="ValorInsertar" />
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning w-50" @onclick="AgregarAntesDeX">Antes de X</button>
+                    <button class="btn btn-info w-50" @onclick="AgregarDespuesDeX">Después de X</button>
+                </div>
+
+                <input type="number" class="form-control mt-3 mb-2" placeholder="Posición" @bind="Posicion" />
+                <div class="d-flex gap-2">
+                    <button class="btn btn-secondary w-50" @onclick="AgregarEnPosicion">En Posición</button>
+                    <button class="btn btn-dark w-50" @onclick="AgregarAntesDePosicion">Antes de Posición</button>
+                    <button class="btn btn-secondary w-50" @onclick="AgregarDespuesDePosicion">Después de Posición</button>
+                </div>
+
+                <h5 class="mt-4">Búsqueda</h5>
+                <input type="text" class="form-control mb-2" placeholder="Elemento a Buscar" @bind="ValorBusqueda" />
+                <button class="btn btn-danger w-100" @onclick="BuscarElemento">Buscar</button>
+                <p class="text-center mt-2">@MensajeBusqueda</p>
+            </div>
+        </div>
+
+        <!-- Lista de nodos (Derecha) -->
+        <div class="col-md-8">
+            <div class="card p-3">
+                <h4 class="text-center">Lista Actual</h4>
+                <ul class="list-group mt-2">
+                    @if (ElementosLista.Count == 0)
+                    {
+                        <li class="list-group-item text-center text-muted">Lista vacía</li>
+                    }
+                    else
+                    {
+                        @foreach (var item in ElementosLista)
+                        {
+                            <li class="list-group-item text-center">@item</li>
+                        }
+                    }
+                </ul>
+
+                <h4 class="text-center mt-4">Recorrido Recursivo</h4>
+                <p class="text-center">@ResultadoRecursivo</p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public string Valor { get; set; } = "";
+    public string ValorX { get; set; } = "";
+    public string ValorBusqueda { get; set; } = "";
+    public string ValorInsertar { get; set; } = "";
+    public int Posicion { get; set; }
+    public string MensajeBusqueda { get; set; } = "";
+    public string ResultadoRecursivo { get; set; } = "";
+    public LES lista { get; set; } = new LES();
+    public List<string> ElementosLista { get; set; } = new List<string>();
+
+    public void AgregarInicio()
+    {
+        lista.AgregarNodoInicio(new Nodo(Valor));
+        ActualizarLista();
+    }
+
+    public void AgregarFinal()
+    {
+        lista.AgregarNodoFinal(new Nodo(Valor));
+        ActualizarLista();
+    }
+
+    public void AgregarAntesDeX()
+    {
+        lista.AgregarAntesDeX(ValorX, new Nodo(ValorInsertar));
+        ActualizarLista();
+    }
+
+    public void AgregarDespuesDeX()
+    {
+        lista.AgregarDespuesDeX(ValorX, new Nodo(ValorInsertar));
+        ActualizarLista();
+    }
+
+    public void AgregarEnPosicion()
+    {
+        lista.AgregarEnPosicion(Posicion, new Nodo(ValorInsertar));
+        ActualizarLista();
+    }
+
+    public void AgregarAntesDePosicion()
+    {
+        lista.AgregarAntesDePosicion(Posicion, new Nodo(ValorInsertar));
+        ActualizarLista();
+    }
+
+    public void AgregarDespuesDePosicion()
+    {
+        lista.AgregarDespuesDePosicion(Posicion, new Nodo(ValorInsertar));
+        ActualizarLista();
+    }
+
+    public void RecorrerLista()
+    {
+        ElementosLista.Clear();
+        lista.RecorrerRecursivo(lista.PrimerNodo, ElementosLista);
+        ResultadoRecursivo = string.Join(" -> ", ElementosLista);
+        StateHasChanged();
+    }
+
+    public void BuscarElemento()
+    {
+        List<int> posiciones = lista.BuscarPosiciones(ValorBusqueda);
+
+        if (posiciones.Count > 0)
+        {
+            string posicionesStr = string.Join(", ", posiciones);
+            MensajeBusqueda = $"Elemento '{ValorBusqueda}' encontrado en las posiciones: {posicionesStr} ✅";
+        }
+        else
+        {
+            MensajeBusqueda = $"Elemento '{ValorBusqueda}' NO encontrado ❌";
+        }
+    }
+
+
+    private void ActualizarLista()
+    {
+        Valor = "";
+        ValorX = "";
+        ValorBusqueda = "";
+        ValorInsertar = "";
+        Posicion = 0;
+        MensajeBusqueda = "";
+        RecorrerLista();
+    }
+}
+
+
+
+
+
